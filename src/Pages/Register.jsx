@@ -44,7 +44,6 @@ const Register = () => {
     } catch (error) {
       setError(error.response?.data || 'Registration failed');
     } finally {
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
       setLoading(false); // stop loading
     }
   };
