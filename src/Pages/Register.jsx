@@ -24,7 +24,6 @@ const Register = () => {
     setError('');
     setSuccess('');
     setLoading(true); // start loading
-
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
       setLoading(false); // stop loading
@@ -39,14 +38,13 @@ const Register = () => {
       });
 
       setSuccess("Registration successful! Redirecting to login...");
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error) {
       setError(error.response?.data || 'Registration failed');
     } finally {
+      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
       setLoading(false); // stop loading
     }
   };

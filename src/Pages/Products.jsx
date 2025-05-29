@@ -282,6 +282,7 @@ const Products = () => {
 
                   {/* Product Details */}
                   <div className="space-y-2 mb-6">
+                    <DetailRow icon="🎓" label="Roll No" value={product.rollno} />
                     <DetailRow icon="🏛️" label="College" value={product.collgename} />
                     <DetailRow icon="📚" label="Department" value={product.dept} />
                     <DetailRow icon="📞" label="Phone" value={product.phoneno} />
