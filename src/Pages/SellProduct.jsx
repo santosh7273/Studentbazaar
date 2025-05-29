@@ -19,6 +19,7 @@ const SellProduct = () => {
   });
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!token) {
     return (
@@ -41,6 +42,7 @@ const SellProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       const res = await axios.post('https://bas-backend.onrender.com/sellproduct', formData, {
@@ -59,6 +61,8 @@ const SellProduct = () => {
           ? err.response.data
           : err.response?.data?.message || 'Failed to add product'
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,7 +183,7 @@ const SellProduct = () => {
           type="submit"
           className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition duration-200"
         >
-          Sell Product
+          {loading ? 'Posting...' : 'Post Product'}
         </button>
       </form>
     </div>

@@ -10,7 +10,6 @@ const MyListings = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     if (!token) {
       navigate("/login");

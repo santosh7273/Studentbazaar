@@ -220,7 +220,7 @@ const Navbar = () => {
                 className="group flex items-center space-x-3 text-white bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 block px-4 py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transform hover:translate-x-2 transition-all duration-300 mt-4"
               >
                 <UserPlus size={20} className="group-hover:rotate-12 transition-transform duration-300" />
-                <span>Join StudyMarket</span>
+                <span>Register</span>
               </Link>
             </>
           )}

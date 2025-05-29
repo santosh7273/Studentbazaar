@@ -11,6 +11,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,9 +23,11 @@ const Register = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setLoading(true); // start loading
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
+      setLoading(false); // stop loading
       return;
     }
 
@@ -35,18 +38,16 @@ const Register = () => {
         password: formData.password
       });
 
-      // Show success message
       setSuccess("Registration successful! Redirecting to login...");
-      
-      // Clear form inputs
       setFormData({ name: '', email: '', password: '', confirmPassword: '' });
 
-      // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error) {
       setError(error.response?.data || 'Registration failed');
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -124,7 +125,7 @@ const Register = () => {
             type="submit"
             className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-300"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
