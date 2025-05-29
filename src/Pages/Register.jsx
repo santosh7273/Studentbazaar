@@ -29,7 +29,7 @@ const Register = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/register', {
+      await axios.post('https://bas-backend.onrender.com/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

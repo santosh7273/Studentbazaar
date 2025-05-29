@@ -18,7 +18,7 @@ const MyListings = () => {
     }
 
     axios
-      .get("http://localhost:5000/mylistings", {
+      .get("https://bas-backend.onrender.com/mylistings", {
         headers: { Authorization: token },
       })
       .then((res) => {
@@ -42,7 +42,7 @@ const MyListings = () => {
 
     setDeleteLoading(productId);
     try {
-      const res = await axios.delete("http://localhost:5000/mylistings/delete", {
+      const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete", {
         headers: { Authorization: token },
         data: { productId, password },
       });

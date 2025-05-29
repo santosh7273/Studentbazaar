@@ -43,7 +43,7 @@ const SellProduct = () => {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:5000/sellproduct', formData, {
+      const res = await axios.post('https://bas-backend.onrender.com/sellproduct', formData, {
         headers: {
           Authorization: token
         }

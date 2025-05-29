@@ -21,7 +21,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (token) {
-      fetch('http://localhost:5000/profile', {
+      fetch('https://bas-backend.onrender.com/profile', {
         headers: { Authorization: token }
       })
         .then(async res => {

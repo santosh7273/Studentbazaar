@@ -5,7 +5,6 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-r from-purple-700 via-blue-700 to-indigo-700 text-white py-6 mt-20 shadow-lg">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
-        
         {/* Owner Info */}
         <div className="text-center md:text-left space-y-1 flex flex-col md:flex-row md:items-center md:space-x-4 md:space-y-0">
           <div className="flex items-center gap-2">

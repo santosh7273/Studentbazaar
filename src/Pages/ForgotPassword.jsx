@@ -25,7 +25,8 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/updatepassword', {
+      
+      const response = await axios.post('https://bas-backend.onrender.com/updatepassword', {
         email,
         password: newPassword
       });

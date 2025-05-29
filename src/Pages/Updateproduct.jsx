@@ -32,7 +32,7 @@ const UpdateProduct = () => {
     }
 
     axios
-      .get(`http://localhost:5000/mylistings/${productId}`, {
+      .get(`https://bas-backend.onrender.com/mylistings/updateproduct/${productId}`, {
         headers: { Authorization: token },
       })
       .then((res) => {
