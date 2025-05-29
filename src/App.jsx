@@ -11,7 +11,7 @@ import SellProduct from './Pages/SellProduct';
 import MyListings from './Pages/MyListings';
 import Products from './Pages/Products';
 import ForgotPassword from './Pages/ForgotPassword'; // Password reset page
-import UpdateProduct from './Pages/UpdateProduct';
+import UpdateProduct from './Pages/Updateproduct';
 import Notfound from './Pages/Notfound';
 // import NotFound from './Pages/NotFound'; // Optional: if you want a 404 page
 
