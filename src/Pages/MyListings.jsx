@@ -186,7 +186,7 @@ const ListingCard = ({ product, onDelete, onUpdate, deleteLoading }) => {
     name,
     price,
     rollno,
-    collgename,
+    collegename,
     dept,
     phoneno,
     email,
@@ -231,7 +231,7 @@ const ListingCard = ({ product, onDelete, onUpdate, deleteLoading }) => {
         {/* Product Details */}
         <div className="space-y-2 mb-4">
           <InfoRow icon="🎓" label="Roll No" value={rollno} />
-          <InfoRow icon="🏛️" label="College" value={collgename} />
+          <InfoRow icon="🏛️" label="College" value={collegename} />
           <InfoRow icon="📚" label="Department" value={dept} />
           <InfoRow icon="📞" label="Phone" value={phoneno} />
           {email && email !== "N/A" && (
@@ -325,19 +325,6 @@ const InfoRow = ({ icon, label, value }) => {
 };
 
 // Convert Google Drive share link to direct image link
-function convertGoogleDriveToDirectLink(link) {
-  try {
-    if (link.includes("uc?id=")) {
-      return link;
-    }
-    const match = link.match(/\/file\/d\/(.*?)\//);
-    if (match && match[1]) {
-      return `https://drive.google.com/uc?id=${match[1]}`;
-    }
-    return link;
-  } catch (error) {
-    return link;
-  }
-}
+
 
 export default MyListings;

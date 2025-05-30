@@ -108,9 +108,7 @@ const ForgotPassword = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 `}
         >
           {loading ? 'Updating...' : 'Update Password'}
         </button>

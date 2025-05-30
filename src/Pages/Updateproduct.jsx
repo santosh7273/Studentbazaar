@@ -3,16 +3,26 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Store } from '../App';
 import { motion } from 'framer-motion';
+
 const UpdateProduct = () => {
   const { token } = useContext(Store);
   const navigate = useNavigate();
   const location = useLocation();
+
   const queryParams = new URLSearchParams(location.search);
   const productId = queryParams.get('id');
+
   const [form, setForm] = useState({
-    name: '', price: '', rollno: '', collegename: '',
-    googledrivelink: '', description: '', dept: '', phoneno: ''
+    name: '',
+    price: '',
+    rollno: '',
+    collegename: '',
+    googledrivelink: '',
+    description: '',
+    dept: '',
+    phoneno: ''
   });
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,15 +31,26 @@ const UpdateProduct = () => {
       navigate('/login');
       return;
     }
+
     axios.get(`https://bas-backend.onrender.com/mylistings/${productId}`, {
       headers: { Authorization: token },
     })
-      .then((res) => {
-        setForm(res.data);
+      .then(res => {
+        setForm({
+          name: res.data.name || '',
+          price: res.data.price || '',
+          rollno: res.data.rollno || '',
+          collegename: res.data.collegename || '', // 👈 Ensure it's captured
+          googledrivelink: res.data.googledrivelink || '',
+          description: res.data.description || '',
+          dept: res.data.dept || '',
+          phoneno: res.data.phoneno || ''
+        });
+
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(err => {
+        console.error("Error fetching product:", err);
         alert('Failed to fetch product.');
         navigate('/mylistings');
       });
@@ -52,7 +73,7 @@ const UpdateProduct = () => {
       alert(res.data.message || 'Product updated!');
       navigate('/mylistings');
     } catch (err) {
-      console.error(err);
+      console.error("Update failed:", err);
       alert('Failed to update product.');
     } finally {
       setSubmitting(false);
@@ -77,21 +98,31 @@ const UpdateProduct = () => {
     >
       <h2 className="text-4xl font-bold text-indigo-700 mb-8 text-center">Update Your Product</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {["name", "price", "rollno", "collegename", "googledrivelink", "dept", "phoneno"].map((field) => (
-          <div key={field} className="flex flex-col">
-            <label className="text-gray-700 font-semibold capitalize">{field}</label>
+        {/* Fields */}
+        {[
+          { label: "Name", name: "name", type: "text", required: true },
+          { label: "Price", name: "price", type: "number", required: true },
+          { label: "Roll Number", name: "rollno", type: "text" },
+          { label: "College Name", name: "collegename", type: "text" },
+          { label: "Google Drive Link", name: "googledrivelink", type: "url" },
+          { label: "Department", name: "dept", type: "text" },
+          { label: "Phone Number", name: "phoneno", type: "tel" },
+        ].map(({ label, name, type, required }) => (
+          <div className="flex flex-col" key={name}>
+            <label className="text-gray-700 font-semibold">{label}</label>
             <input
-              type={field === "price" ? "number" : "text"}
-              name={field}
-              value={form[field] || ''}
+              type={type}
+              name={name}
+              value={form[name] || ''}
               onChange={handleChange}
-              required={["name", "price"].includes(field)}
+              required={required}
+              placeholder={`Enter ${label.toLowerCase()}`}
               className="mt-2 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder={`Enter ${field}`}
             />
           </div>
         ))}
 
+        {/* Description */}
         <div className="flex flex-col">
           <label className="text-gray-700 font-semibold">Description</label>
           <textarea
@@ -99,18 +130,20 @@ const UpdateProduct = () => {
             value={form.description || ''}
             onChange={handleChange}
             rows={4}
-            className="mt-2 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Enter description..."
+            placeholder="Enter description"
+            className="mt-2 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
           />
         </div>
-<motion.button
-  type="submit"
-  disabled={submitting}
-  whileTap={{ scale: 0.97 }}
-  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition duration-300"
->
-  {submitting ? 'Updating...' : 'Update Product'}
-</motion.button>
+
+        {/* Submit */}
+        <motion.button
+          type="submit"
+          disabled={submitting}
+          whileTap={{ scale: 0.97 }}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition duration-300"
+        >
+          {submitting ? 'Updating...' : 'Update Product'}
+        </motion.button>
       </form>
     </motion.div>
   );
