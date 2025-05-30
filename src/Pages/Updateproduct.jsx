@@ -3,15 +3,12 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Store } from '../App';
 import { motion } from 'framer-motion';
-
 const UpdateProduct = () => {
   const { token } = useContext(Store);
   const navigate = useNavigate();
   const location = useLocation();
-
   const queryParams = new URLSearchParams(location.search);
   const productId = queryParams.get('id');
-
   const [form, setForm] = useState({
     name: '',
     price: '',
@@ -46,7 +43,6 @@ const UpdateProduct = () => {
           dept: res.data.dept || '',
           phoneno: res.data.phoneno || ''
         });
-
         setLoading(false);
       })
       .catch(err => {

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, Home, LogIn, UserPlus, LogOut, PackagePlus, List, Eye, GraduationCap } from 'lucide-react';
+import { Menu, X, User, Home, LogIn, UserPlus, LogOut, PackagePlus, List, Eye, ShoppingBag } from 'lucide-react';
 import { Store } from '../App';
 
 const Navbar = () => {
@@ -90,15 +90,15 @@ const Navbar = () => {
           <div className="flex items-center space-x-3 group cursor-pointer">
             <div className="relative">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200 group-hover:shadow-purple-300 transition-all duration-300 group-hover:scale-110">
-                <GraduationCap className="w-7 h-7 text-white group-hover:rotate-12 transition-transform duration-300" />
+                <ShoppingBag className="w-7 h-7 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-black bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-purple-700 group-hover:to-indigo-700 transition-all duration-300">
-                BAS-Be a Seller
+                StudentBazaar
               </span>
-              <span className="text-xs text-gray-500 font-medium -mt-1">Student Marketplace</span>
+              <span className="text-xs text-gray-500 font-medium -mt-1">Buy Smart - Sell Easy</span>
             </div>
           </div>
 
