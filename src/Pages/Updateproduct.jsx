@@ -3,8 +3,10 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Store } from '../App';
 import { motion } from 'framer-motion';
-
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 const UpdateProduct = () => {
+  const MySwal = withReactContent(Swal);
   const { token } = useContext(Store);
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,6 +80,15 @@ const UpdateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let result =await MySwal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to update this product?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, update it!',
+      cancelButtonText: 'Cancel',
+    })
+    if (!result.isConfirmed) return;
     setSubmitting(true);
     setError('');
 
@@ -88,12 +99,19 @@ const UpdateProduct = () => {
         { headers: { Authorization: token } }
       );
       
-      alert('Product updated successfully!');
+      await MySwal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Product updated successfully!',
+      });
       navigate('/mylistings');
     } catch (err) {
-      console.error('Update failed:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to update product';
-      setError(errorMessage);
+      await MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'Failed to update product',
+      });
+      setError(err.response?.data?.message || 'Failed to update product');
     } finally {
       setSubmitting(false);
     }

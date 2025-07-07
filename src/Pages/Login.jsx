@@ -2,7 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Store } from '../App';
-
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 const Login = () => {
   const { setToken } = useContext(Store);
   const navigate = useNavigate();
@@ -28,14 +29,25 @@ const Login = () => {
       const response = await axios.post('https://bas-backend.onrender.com/login', ud);
       setToken(response.data.token);
 
-      setSuccessMsg("Login successful! Redirecting...");
-      setTimeout(() => {
+      
+      await Swal.fire({
+        title: 'Login Successful',
+        text: 'Welcome back!',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
         navigate("/products");
-      }, 2000); // 2 seconds delay before redirect
+      
 
     } catch (error) {
       console.error(error);
-      setErrorMsg(error.response?.data || "Login failed. Please check your credentials.");
+      await Swal.fire({
+        title: 'Login Failed',
+        text: error.response?.data || "Login failed. Please check your credentials.",
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      
     } finally {
       setLoading(false);
     }

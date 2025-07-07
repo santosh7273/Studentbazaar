@@ -2,6 +2,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Store } from '../App';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import {
   ShoppingCart,
   Mail,
@@ -14,6 +16,7 @@ import {
   Settings
 } from 'lucide-react';
 const Profile = () => {
+const MySwal = withReactContent(Swal);
   const { token, setToken } = useContext(Store);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
@@ -38,7 +41,22 @@ const Profile = () => {
     }
   }, [token, navigate, setToken]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    let result = await MySwal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to logout?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+    })
+    if(!result.isConfirmed) return;
+    MySwal.fire({
+      icon: 'success',
+      title: 'Logged out!',
+      text: 'You have successfully logged out.',
+    });
+    
     setToken(null);
     navigate('/login');
   };

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +13,7 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,28 +26,53 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const result = await MySwal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to register with these details?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, register!',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!result.isConfirmed) return;
+
     setError('');
     setSuccess('');
-    setLoading(true); // start loading
+    setLoading(true);
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
-      setLoading(false); // stop loading
+      setLoading(false);
       return;
     }
+
     try {
       await axios.post('https://bas-backend.onrender.com/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
       });
-      setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      await MySwal.fire({
+        title: 'Registration Successful',
+        text: 'You can now log in to your account.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+
+      navigate('/login'); // ✅ Redirect after success
     } catch (error) {
+      await MySwal.fire({
+        title: 'Registration Failed',
+        text: error.response?.data || 'An error occurred during registration.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+
       setError(error.response?.data || 'Registration failed');
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false);
     }
   };
 
@@ -50,6 +80,7 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 px-4">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-center text-indigo-700 mb-6">Create Your Account</h1>
+
         {error && (
           <p className="text-red-600 bg-red-100 text-sm text-center px-3 py-2 rounded mb-4">
             {error}

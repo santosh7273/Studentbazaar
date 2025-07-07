@@ -2,8 +2,10 @@ import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, Home, LogIn, UserPlus, LogOut, PackagePlus, List, Eye, ShoppingBag } from 'lucide-react';
 import { Store } from '../App';
-
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 const Navbar = () => {
+  const MySwal = withReactContent(Swal);
   const { token, setToken } = useContext(Store);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -12,7 +14,21 @@ const Navbar = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    let result = await MySwal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to logout?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+    })
+    if(!result.isConfirmed) return;
+    MySwal.fire({
+      icon: 'success',
+      title: 'Logged out!',
+      text: 'You have successfully logged out.',
+    });
     setToken(null);
     setIsMobileMenuOpen(false);
   };

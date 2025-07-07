@@ -3,8 +3,10 @@ import axios from "axios";
 import { Store } from "../App";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 const MyListings = () => {
+  const MySwal = withReactContent(Swal);
   const { token } = useContext(Store);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,27 +38,44 @@ const MyListings = () => {
   }, [token, navigate]);
 
   const handleDelete = async (productId) => {
-    const password = prompt("Enter your password to confirm deletion:");
-    if (!password) return;
-
-    setDeleteLoading(productId);
-    try {
-      const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete", {
-        headers: { Authorization: token },
-        data: { productId, password },
-      });
-      alert(res.data.message);
-      setListings((prev) => prev.filter((p) => p._id !== productId));
-    } catch (err) {
-      if (err.response?.status === 401) {
-        alert("Invalid password. Deletion failed.");
-      } else {
-        alert("Error deleting product.");
+  const result = await MySwal.fire({
+    title: "Confirm Deletion",
+    text: "Enter your password to confirm deletion",
+    input: "password",
+    inputPlaceholder: "Enter your password",
+    showCancelButton: true,
+    confirmButtonText: "Delete",
+    cancelButtonText: "Cancel",
+    inputValidator: (value) => {
+      if (!value) {
+        return "Password is required!";
       }
-    } finally {
-      setDeleteLoading(null);
+    },
+  });
+
+  if (!result.isConfirmed || !result.value) return;
+
+  const password = result.value;
+  setDeleteLoading(productId);
+
+  try {
+    const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete", {
+      headers: { Authorization: token },
+      data: { productId, password },
+    });
+
+    Swal.fire("Deleted!", res.data.message, "success");
+    setListings((prev) => prev.filter((p) => p._id !== productId));
+  } catch (err) {
+    if (err.response?.status === 401) {
+      Swal.fire("Failed", "Invalid password. Deletion failed.", "error");
+    } else {
+      Swal.fire("Error", "Error deleting product.", "error");
     }
-  };
+  } finally {
+    setDeleteLoading(null);
+  }
+};
 
   const handleUpdate = (productId) => {
     navigate(`/updateproduct?id=${productId}`);
