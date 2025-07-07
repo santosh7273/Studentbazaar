@@ -5,6 +5,8 @@ import { Store } from '../App';
 import { motion } from 'framer-motion';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { PacmanLoader } from 'react-spinners';
+
 const UpdateProduct = () => {
   const MySwal = withReactContent(Swal);
   const { token } = useContext(Store);
