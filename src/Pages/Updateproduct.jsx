@@ -119,11 +119,19 @@ const UpdateProduct = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
-          <p className="mt-4 text-indigo-700 font-medium">Loading product...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <PacmanLoader 
+  color="#7c3aed" 
+  size={30} 
+  speedMultiplier={1.5} 
+  loading={true}
+/>
+
+        </motion.div>
       </div>
     );
   }
