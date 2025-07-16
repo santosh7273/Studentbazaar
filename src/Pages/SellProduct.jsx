@@ -8,9 +8,9 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 const SellProduct = () => {
-  const { token } = useContext(Store);
+  const { usertoken } = useContext(Store);
+  const token = usertoken || localStorage.getItem("usertoken");
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -53,14 +53,18 @@ const SellProduct = () => {
       confirmButtonText: 'Yes, submit it!',
       cancelButtonText: 'Cancel',
     });
+
     if (!result.isConfirmed) return;
+
     setLoading(true);
+
     try {
       const res = await axios.post('https://bas-backend.onrender.com/sellproduct', formData, {
         headers: {
           Authorization: token
         }
       });
+
       if (res.status === 201) {
         await MySwal.fire({
           icon: 'success',
@@ -84,122 +88,55 @@ const SellProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-xl bg-white p-8 rounded-lg shadow-lg space-y-5"
       >
         <h2 className="text-3xl font-bold text-center text-indigo-700">Sell Your Product</h2>
 
+        {[
+          { name: "name", type: "text", placeholder: "Enter product name", label: "Product Name" },
+          { name: "price", type: "number", placeholder: "Enter price", label: "Price" },
+          { name: "rollno", type: "text", placeholder: "Enter your roll number", label: "Roll Number" },
+          { name: "collegename", type: "text", placeholder: "Enter your college name", label: "College Name" },
+          { name: "googledrivelink", type: "url", placeholder: "Enter drive link of the Product images", label: "Google Drive Link" },
+          { name: "dept", type: "text", placeholder: "Enter your department", label: "Department" },
+          { name: "phoneno", type: "tel", placeholder: "Enter your phone number", label: "Phone Number" },
+        ].map(({ name, type, placeholder, label }) => (
+          <div key={name}>
+            <label className="block mb-1 font-medium text-gray-700" htmlFor={name}>{label}</label>
+            <input
+              name={name}
+              id={name}
+              type={type}
+              value={formData[name]}
+              onChange={handleChange}
+              placeholder={placeholder}
+              required
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        ))}
+
         <div>
-  <label className="block mb-1 font-medium text-gray-700">Product Name</label>
-  <input
-    name="name"
-    type="text"
-    value={formData.name}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter product name"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Price</label>
-  <input
-    name="price"
-    type="number"
-    value={formData.price}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter price"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Roll Number</label>
-  <input
-    name="rollno"
-    type="text"
-    value={formData.rollno}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter your roll number"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">College Name</label>
-  <input
-    name="collegename"
-    type="text"
-    value={formData.collegename}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter your college name"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Google Drive Link</label>
-  <input
-    name="googledrivelink"
-    type="url"
-    value={formData.googledrivelink}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter drive link of the Product images"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Description</label>
-  <textarea
-    name="description"
-    value={formData.description}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500 resize-none"
-    placeholder="Enter product description"
-    rows="4"
-    required
-  ></textarea>
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Department</label>
-  <input
-    name="dept"
-    type="text"
-    value={formData.dept}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter your department"
-    required
-  />
-</div>
-
-<div>
-  <label className="block mb-1 font-medium text-gray-700">Phone Number</label>
-  <input
-    name="phoneno"
-    type="tel"
-    value={formData.phoneno}
-    onChange={handleChange}
-    className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500"
-    placeholder="Enter your phone number"
-    required
-  />
-</div>
-
+          <label className="block mb-1 font-medium text-gray-700" htmlFor="description">Description</label>
+          <textarea
+            name="description"
+            id="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Enter product description"
+            rows="4"
+            required
+            className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-500 resize-none"
+          ></textarea>
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition duration-200"
           disabled={loading}
+          className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition duration-200"
         >
           {loading ? 'Posting...' : 'Post Product'}
         </button>

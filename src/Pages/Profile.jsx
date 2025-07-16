@@ -19,34 +19,33 @@ import {
 
 const Profile = () => {
   const MySwal = withReactContent(Swal);
-  const { token, setToken } = useContext(Store);
+  const { usertoken, setuserToken } = useContext(Store);
+  const authToken = usertoken || localStorage.getItem("usertoken");
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      fetch('https://bas-backend.onrender.com/profile', {
-        headers: { Authorization: token }
+    if (!authToken) return navigate('/login');
+
+    fetch('https://bas-backend.onrender.com/profile', {
+      headers: { Authorization: authToken }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
       })
-        .then(async res => {
-          if (!res.ok) throw new Error(await res.text());
-          return res.json();
-        })
-        .then(data => {
-          setUserData(data);
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error('Profile fetch error:', error);
-          setError(error.message);
-          setLoading(false);
-        });
-    } else {
-      navigate('/login');
-    }
-  }, [token, navigate, setToken]);
+      .then(data => {
+        setUserData(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Profile fetch error:', error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, [authToken, navigate]);
 
   const handleLogout = async () => {
     let result = await MySwal.fire({
@@ -57,14 +56,17 @@ const Profile = () => {
       confirmButtonText: 'Yes, logout!',
       cancelButtonText: 'Cancel'
     });
+
     if (!result.isConfirmed) return;
+
     MySwal.fire({
       icon: 'success',
       title: 'Logged out!',
       text: 'You have successfully logged out.'
     });
 
-    setToken(null);
+    setuserToken(null);
+    localStorage.removeItem("usertoken");
     navigate('/login');
   };
 

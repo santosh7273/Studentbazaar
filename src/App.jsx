@@ -1,6 +1,7 @@
 import React, { useState, createContext, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Footer from './Pages/Footer';
 import Home from './Pages/Home';
 import Navbar from './Pages/Navbar';
@@ -10,26 +11,37 @@ import Login from './Pages/Login';
 import SellProduct from './Pages/SellProduct';
 import MyListings from './Pages/MyListings';
 import Products from './Pages/Products';
-import ForgotPassword from './Pages/ForgotPassword'; // Password reset page
+import ForgotPassword from './Pages/ForgotPassword';
 import UpdateProduct from './Pages/Updateproduct';
 import Notfound from './Pages/Notfound';
-// import NotFound from './Pages/NotFound'; // Optional: if you want a 404 page
+import AdminLogin from './Pages/AdminLogin';
+import Admin_profile from './Pages/Admin_profile';
+import PendingProducts from './Pages/PendingProducts';
 
+// Global context
 export const Store = createContext(null);
-
 function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [usertoken, setuserToken] = useState(null);
+  const [admintoken, setadminToken] = useState(null);
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token);
-    } else {
-      localStorage.removeItem('token');
-    }
-  }, [token]);
+  // Store tokens to localStorage on change
+  // useEffect(() => {
+  //   if (usertoken) {
+  //     localStorage.setItem('usertoken', usertoken);
+  //   } else {
+  //     localStorage.removeItem('usertoken');
+  //   }
+  // }, [usertoken]);
 
+  // useEffect(() => {
+  //   if (admintoken) {
+  //     localStorage.setItem('admintoken', admintoken);
+  //   } else {
+  //     localStorage.removeItem('admintoken');
+  //   }
+  // }, [admintoken]);
   return (
-    <Store.Provider value={{ token, setToken }}>
+    <Store.Provider value={{ usertoken, setuserToken, admintoken, setadminToken }}>
       <Router>
         <Navbar />
         <Routes>
@@ -43,8 +55,10 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/updatepassword" element={<ForgotPassword />} />
           <Route path="/updateproduct" element={<UpdateProduct />} />
-          <Route path="*" element={<Notfound />} /> 
-          {/* Optionally use a custom 404 page instead of Home: <Route path="*" element={<NotFound />} /> */}
+          <Route path="/admin_login" element={<AdminLogin />} />
+          <Route path="/admin_profile" element={<Admin_profile />} />
+          <Route path="/pendingproducts" element={<PendingProducts />} />
+          <Route path="*" element={<Notfound />} />
         </Routes>
         <Footer />
       </Router>

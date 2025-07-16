@@ -9,14 +9,15 @@ import { PacmanLoader } from 'react-spinners';
 
 const UpdateProduct = () => {
   const MySwal = withReactContent(Swal);
-  const { token } = useContext(Store);
+  const { usertoken } = useContext(Store);
+  const token = usertoken || localStorage.getItem('usertoken');
   const navigate = useNavigate();
   const location = useLocation();
   const productId = new URLSearchParams(location.search).get('id');
 
   const [form, setForm] = useState({
     name: '',
-    price: 0,
+    price: '',
     rollno: '',
     collegename: '',
     googledrivelink: '',
@@ -47,7 +48,6 @@ const UpdateProduct = () => {
           `https://bas-backend.onrender.com/mylistings/${productId}`,
           { headers: { Authorization: token } }
         );
-
         const productData = response.data;
         setForm({
           name: productData.name,
@@ -82,25 +82,28 @@ const UpdateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let result =await MySwal.fire({
+
+    const result = await MySwal.fire({
       title: 'Are you sure?',
-      text: "Do you want to update this product?",
+      text: 'Do you want to update this product?',
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Yes, update it!',
       cancelButtonText: 'Cancel',
-    })
+    });
+
     if (!result.isConfirmed) return;
+
     setSubmitting(true);
     setError('');
 
     try {
       await axios.put(
-        `https://bas-backend.onrender.com/mylistings/updateproduct/${productId}`,
+        `http://localhost:5000/mylistings/updateproduct/${productId}`,
         form,
         { headers: { Authorization: token } }
       );
-      
+
       await MySwal.fire({
         icon: 'success',
         title: 'Updated!',
@@ -122,23 +125,14 @@ const UpdateProduct = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <PacmanLoader 
-  color="#7c3aed" 
-  size={30} 
-  speedMultiplier={1.5} 
-  loading={true}
-/>
-
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <PacmanLoader color="#7c3aed" size={30} speedMultiplier={1.5} loading={true} />
         </motion.div>
       </div>
     );
   }
 
-  if (error && !form.name) {
+  if (error && (!form.name || !productId)) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
@@ -161,9 +155,7 @@ const UpdateProduct = () => {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg mt-12"
     >
-      <h2 className="text-4xl font-bold text-indigo-700 mb-8 text-center">
-        Update Product
-      </h2>
+      <h2 className="text-4xl font-bold text-indigo-700 mb-8 text-center">Update Product</h2>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -172,106 +164,32 @@ const UpdateProduct = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Name */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">
-            Product Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            placeholder="Enter product name"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        {[
+          { name: 'name', label: 'Product Name', type: 'text', required: true },
+          { name: 'price', label: 'Price', type: 'number', required: true, min: 0 },
+          { name: 'rollno', label: 'Roll Number', type: 'text' },
+          { name: 'collegename', label: 'College Name', type: 'text' },
+          { name: 'googledrivelink', label: 'Google Drive Link', type: 'url' },
+          { name: 'dept', label: 'Department', type: 'text' },
+          { name: 'phoneno', label: 'Phone Number', type: 'tel' },
+        ].map(({ name, label, type, required, min }) => (
+          <div key={name} className="flex flex-col">
+            <label className="text-gray-700 font-semibold mb-2">
+              {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+              type={type}
+              name={name}
+              value={form[name]}
+              onChange={handleChange}
+              required={required}
+              min={min}
+              placeholder={`Enter ${label.toLowerCase()}`}
+              className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        ))}
 
-        {/* Price */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">
-            Price <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            required
-            min="0"
-            step="1"
-            placeholder="Enter price"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Roll Number */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">Roll Number</label>
-          <input
-            type="text"
-            name="rollno"
-            value={form.rollno}
-            onChange={handleChange}
-            placeholder="Enter roll number"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* College Name */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">College Name</label>
-          <input
-            type="text"
-            name="collegename"
-            value={form.collegename}
-            onChange={handleChange}
-            placeholder="Enter college name"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Google Drive Link */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">Google Drive Link</label>
-          <input
-            type="url"
-            name="googledrivelink"
-            value={form.googledrivelink}
-            onChange={handleChange}
-            placeholder="Enter Google Drive link"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Department */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">Department</label>
-          <input
-            type="text"
-            name="dept"
-            value={form.dept}
-            onChange={handleChange}
-            placeholder="Enter department"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Phone Number */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold mb-2">Phone Number</label>
-          <input
-            type="tel"
-            name="phoneno"
-            value={form.phoneno}
-            onChange={handleChange}
-            placeholder="Enter phone number"
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* Description */}
         <div className="flex flex-col">
           <label className="text-gray-700 font-semibold mb-2">Description</label>
           <textarea
@@ -284,7 +202,6 @@ const UpdateProduct = () => {
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-4 pt-4">
           <motion.button
             type="button"

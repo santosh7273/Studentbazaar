@@ -3,58 +3,48 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Store } from '../App';
 import Swal from 'sweetalert2';
-const Login = () => {
-  // Access user and admin tokens from global context
-  const { usertoken, setuserToken, setadminToken } = useContext(Store);
+const AdminLogin = () => {
+  const { setadminToken, setuserToken, admintoken } = useContext(Store);
   const navigate = useNavigate();
-  // Local state for user credentials and feedback messages
   const [ud, setUd] = useState({ email: '', password: '' });
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  // Redirect to products if already logged in
-  const p= usertoken || localStorage.getItem("usertoken");
+  const p=admintoken || localStorage.getItem("admintoken");
+  // Redirect admin if already logged in
   useEffect(() => {
     if (p) {
-      navigate('/products');
+      navigate('/admin_profile');
     }
   }, [p, navigate]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUd((prev) => ({ ...prev, [name]: value }));
   };
-
-  // Handle login form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
     setLoading(true);
-
     try {
-      const response = await axios.post('https://bas-backend.onrender.com/login', ud);
-      const { token } = response.data;
+      const response = await axios.post('https://bas-backend.onrender.com/admin_login', ud);
+      const token = response.data.token;
 
-      if (!token) throw new Error('Invalid response from server');
+      if (!token) throw new Error('Invalid token from server');
 
-      // Save user token to context and localStorage
-      setuserToken(token);
-      localStorage.setItem('usertoken', token);
-
-      // Clear any existing admin token
-      setadminToken(null);
-      localStorage.removeItem('admintoken');
-      // Show success message
+      setadminToken(token);
+      localStorage.setItem('admintoken', token);
+      setuserToken(null); // clear user login if switching
+      localStorage.removeItem('usertoken');
       await Swal.fire({
         title: 'Login Successful',
-        text: 'Welcome back!',
+        text: 'Welcome Admin!',
         icon: 'success',
         confirmButtonText: 'OK',
       });
 
-      navigate('/products');
+      navigate('/admin_profile');
     } catch (error) {
       console.error(error);
       await Swal.fire({
@@ -71,7 +61,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">Login to Your Account</h2>
+        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">Admin Login</h2>
 
         {errorMsg && (
           <div className="bg-red-100 text-red-700 p-3 mb-4 rounded-lg text-sm text-center">
@@ -126,16 +116,9 @@ const Login = () => {
         </form>
 
         <div className="text-center mt-6 text-gray-600 text-sm">
-          Don’t have an account?
-          <Link to="/register" className="text-indigo-600 font-semibold ml-1 hover:underline">
-            Register
-          </Link>
-        </div>
-
-        <div className="text-center mt-2 text-gray-600 text-sm">
-          Are you an Admin?
-          <Link to="/admin_login" className="text-indigo-600 font-semibold ml-1 hover:underline">
-            Login as Admin
+          Not an Admin?
+          <Link to="/login" className="text-indigo-600 font-semibold ml-1 hover:underline">
+            Login as User
           </Link>
         </div>
       </div>
@@ -143,4 +126,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

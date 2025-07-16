@@ -1,29 +1,30 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { PacmanLoader } from 'react-spinners';
-import { BeatLoader } from 'react-spinners';
 import { Store } from "../App";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+
 const MyListings = () => {
   const MySwal = withReactContent(Swal);
-  const { token } = useContext(Store);
+  const { usertoken } = useContext(Store);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
-    if (!token) {
+    const authToken = usertoken || localStorage.getItem("usertoken");
+    if (!authToken) {
       navigate("/login");
       return;
     }
 
-    axios
-      .get("https://bas-backend.onrender.com/mylistings", {
-        headers: { Authorization: token },
-      })
+    axios.get("https://bas-backend.onrender.com/mylistings", {
+      headers: { Authorization: authToken },
+    })
       .then((res) => {
         setListings(res.data);
         setLoading(false);
@@ -34,50 +35,49 @@ const MyListings = () => {
         if (err.response?.status === 401) {
           navigate("/login");
         } else {
-          alert("Failed to fetch listings.");
+          Swal.fire("Error", "Failed to fetch listings.", "error");
         }
       });
-  }, [token, navigate]);
+  }, [usertoken, navigate]);
 
   const handleDelete = async (productId) => {
-  const result = await MySwal.fire({
-    title: "Confirm Deletion",
-    text: "Enter your password to confirm deletion",
-    input: "password",
-    inputPlaceholder: "Enter your password",
-    showCancelButton: true,
-    confirmButtonText: "Delete",
-    cancelButtonText: "Cancel",
-    inputValidator: (value) => {
-      if (!value) {
-        return "Password is required!";
-      }
-    },
-  });
-
-  if (!result.isConfirmed || !result.value) return;
-
-  const password = result.value;
-  setDeleteLoading(productId);
-
-  try {
-    const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete", {
-      headers: { Authorization: token },
-      data: { productId, password },
+    const result = await MySwal.fire({
+      title: "Confirm Deletion",
+      text: "Enter your password to confirm deletion",
+      input: "password",
+      inputPlaceholder: "Enter your password",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      inputValidator: (value) => {
+        if (!value) return "Password is required!";
+      },
     });
 
-    Swal.fire("Deleted!", res.data.message, "success");
-    setListings((prev) => prev.filter((p) => p._id !== productId));
-  } catch (err) {
-    if (err.response?.status === 401) {
-      Swal.fire("Failed", "Invalid password. Deletion failed.", "error");
-    } else {
-      Swal.fire("Error", "Error deleting product.", "error");
+    if (!result.isConfirmed || !result.value) return;
+
+    const password = result.value;
+    setDeleteLoading(productId);
+
+    try {
+      const authToken = usertoken || localStorage.getItem("usertoken");
+      const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete/", {
+        headers: { Authorization: authToken },
+        data: { password, productId },
+      });
+
+      Swal.fire("Deleted!", res.data.message, "success");
+      setListings((prev) => prev.filter((p) => p._id !== productId));
+    } catch (err) {
+      if (err.response?.status === 401) {
+        Swal.fire("Failed", "Invalid password. Deletion failed.", "error");
+      } else {
+        Swal.fire("Error", "Error deleting product.", "error");
+      }
+    } finally {
+      setDeleteLoading(null);
     }
-  } finally {
-    setDeleteLoading(null);
-  }
-};
+  };
 
   const handleUpdate = (productId) => {
     navigate(`/updateproduct?id=${productId}`);
@@ -85,83 +85,78 @@ const MyListings = () => {
 
   if (loading) {
     return (
-       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <PacmanLoader color="#7c3aed" size={25} />
-        </motion.div>
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                <PacmanLoader color="#7c3aed" size={30} speedMultiplier={1.5} loading={true} />
+              </motion.div>
+            </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
           className="text-center mb-12"
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             My Listings
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Manage your products with ease. Update details, track performance, or remove listings as needed.
           </p>
-          <div className="flex items-center justify-center mt-6">
-            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 border border-violet-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-slate-700">
-                {listings.length} {listings.length === 1 ? 'Product' : 'Products'} Listed
+          
+          <div className="flex items-center justify-center">
+            <motion.div 
+              initial={{ scale: 0.9 }} 
+              animate={{ scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center space-x-3 bg-white rounded-full px-6 py-3 shadow-md border border-gray-200"
+            >
+              <div className="relative">
+                <div className="w-3 h-3 bg-fuchsia-500 rounded-full"></div>
+              </div>
+              <span className="text-gray-700 font-semibold text-lg">
+                {listings.length} {listings.length === 1 ? "Product" : "Products"} Listed
               </span>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* Empty State */}
         {listings.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
             className="text-center py-16"
           >
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 5l7-3-7 3z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-3">No Products Listed Yet</h3>
-              <p className="text-slate-600 mb-8 leading-relaxed">
+            <div className="max-w-lg mx-auto bg-white rounded-2xl p-12 shadow-lg border border-gray-200">
+              <div className="text-6xl mb-6">📦</div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">No Products Listed Yet</h3>
+              <p className="text-gray-600 mb-8 leading-relaxed text-lg">
                 Start your selling journey by adding your first product. It's quick and easy!
               </p>
-              <button
-                onClick={() => navigate('/sellproduct')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-violet-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              <motion.button
+                onClick={() => navigate("/sellproduct")}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center px-8 py-4  bg-fuchsia-500 text-white font-semibold rounded-xl hover: bg-fuchsia-600 transition-colors duration-200 shadow-lg"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Add Your First Product
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         ) : (
-          /* Products Grid */
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
-            initial="hidden"
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8" 
+            initial="hidden" 
             animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: { staggerChildren: 0.1 },
-              },
-            }}
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
           >
             <AnimatePresence>
               {listings.map((product) => (
@@ -183,128 +178,107 @@ const MyListings = () => {
 
 const ListingCard = ({ product, onDelete, onUpdate, deleteLoading }) => {
   const {
-    _id,
-    name,
-    price,
-    rollno,
-    collegename,
-    dept,
-    phoneno,
-    email,
-    description,
-    googledrivelink,
+    _id, name, price, rollno, collegename, dept, phoneno,
+    email, description, googledrivelink, approved_string,
   } = product;
 
-  const [imageError, setImageError] = useState(false);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Approved":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Rejected":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    }
+  };
 
   return (
     <motion.div
       layout
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 },
-      }}
+      variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      whileHover={{ y: -4 }}
-      className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-violet-100 overflow-hidden hover:shadow-xl hover:border-violet-200 transition-all duration-300"
+      whileHover={{ y: -4, scale: 1.02 }}
+      className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
     >
-      {/* Header Section with Price */}
-      <div className="relative bg-yellow-100 p-5 border-b border-violet-100">
-  <div className="flex items-start justify-between">
-    <div className="flex-1">
-      <h3 className="text-xl font-bold text-slate-800 mb-1 line-clamp-2 group-hover:text-violet-700 transition-colors">
-        {name || "Unnamed Product"}
-      </h3>
-    </div>
-    <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg ml-3 shrink-0">
-      ₹{price ?? "N/A"}
-    </div>
-  </div>
-</div>
+      <div className="bg-gray-50 p-6 border-b border-gray-200">
+        <div className="flex items-start justify-between">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+            {name}
+          </h3>
+          <div className=" bg-fuchsia-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm ml-3 shrink-0">
+            ₹{price}
+          </div>
+        </div>
+      </div>
 
-      {/* Content Section */}
-      <div className="p-5">
-        {/* Product Name */}
-        <h3 className="text-xl font-bold text-slate-800 mb-3 line-clamp-2 group-hover:text-violet-700 transition-colors">
-          {name || "Unnamed Product"}
-        </h3>
-
-        {/* Product Details */}
-        <div className="space-y-2 mb-4">
+      <div className="p-6">
+        <div className="space-y-3 mb-6">
           <InfoRow icon="🎓" label="Roll No" value={rollno} />
           <InfoRow icon="🏛️" label="College" value={collegename} />
           <InfoRow icon="📚" label="Department" value={dept} />
           <InfoRow icon="📞" label="Phone" value={phoneno} />
-          {email && email !== "N/A" && (
-            <div className="flex items-start gap-2 text-sm">
-              <span className="text-xs">✉️</span>
-              <div className="min-w-0 flex-1">
-                <span className="text-slate-600 font-medium">Email:</span>{" "}
-                <a
-                  href={`mailto:${email}`}
-                  className="text-violet-600 hover:text-violet-700 font-medium underline-offset-2 hover:underline transition-colors break-all"
-                >
-                  {email}
-                </a>
-              </div>
-            </div>
-          )}
+          <InfoRow icon="✉️" label="Email" value={email} />
         </div>
 
-        {/* Description */}
-{description && description !== "No description available" && (
-  <div className="mb-4 bg-violet-50 border border-violet-200 rounded-xl p-4 shadow-sm">
-    <div className="flex items-center gap-2 mb-3">
-      <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16h8M8 12h8M8 8h8M4 6h16v12H4z" />
-      </svg>
-      <h4 className="text-sm font-semibold text-violet-700 uppercase tracking-wide">Product Description</h4>
-    </div>
-    <p className="text-sm text-slate-700 leading-relaxed line-clamp-4">
-      {description}
-    </p>
-  </div>
-)}
-
-        {/* Google Drive Link */}
-        {googledrivelink && (
-          <a
-            href={googledrivelink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-violet-600 hover:text-violet-700 font-medium mb-4 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            View Images
-          </a>
+        {approved_string && (
+          <div className="mb-6">
+            <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full border ${getStatusColor(approved_string)}`}>
+              {approved_string}
+            </span>
+          </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t border-slate-100">
-          <button
+        {description && (
+          <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <p className="text-sm text-gray-700 leading-relaxed line-clamp-4">{description}</p>
+          </div>
+        )}
+
+        {googledrivelink && (
+          <motion.a 
+            href={googledrivelink} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium mb-6 transition-colors"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View Images
+          </motion.a>
+        )}
+
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <motion.button
             onClick={() => onUpdate(_id)}
-            className="flex-1 bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg text-sm"
-            aria-label="Update product"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-1 bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-blue-700 shadow-sm"
           >
             Update
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={() => onDelete(_id)}
             disabled={deleteLoading}
-            className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 disabled:from-red-300 disabled:to-rose-300 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 shadow-md hover:shadow-lg disabled:shadow-sm text-sm disabled:cursor-not-allowed"
-            aria-label="Delete product"
+            whileHover={{ scale: deleteLoading ? 1 : 1.05 }}
+            whileTap={{ scale: deleteLoading ? 1 : 0.95 }}
+            className="flex-1 bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 hover:bg-red-700 shadow-sm"
           >
             {deleteLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                 Deleting...
-              </div>
+              </span>
             ) : (
               "Delete"
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>
@@ -313,19 +287,15 @@ const ListingCard = ({ product, onDelete, onUpdate, deleteLoading }) => {
 
 const InfoRow = ({ icon, label, value }) => {
   if (!value || value === "N/A") return null;
-  
   return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="text-xs">{icon}</span>
+    <div className="flex items-start gap-3 text-sm">
+      <span className="text-lg">{icon}</span>
       <div className="min-w-0 flex-1">
-        <span className="text-slate-600 font-medium">{label}:</span>{" "}
-        <span className="text-slate-800">{value}</span>
+        <span className="text-gray-500 font-medium">{label}:</span>{" "}
+        <span className="text-gray-900 break-words font-semibold">{value}</span>
       </div>
     </div>
   );
 };
-
-// Convert Google Drive share link to direct image link
-
 
 export default MyListings;
