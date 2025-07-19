@@ -64,7 +64,6 @@ const SellProduct = () => {
           Authorization: token
         }
       });
-
       if (res.status === 201) {
         await MySwal.fire({
           icon: 'success',

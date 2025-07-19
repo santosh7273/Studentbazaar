@@ -54,7 +54,7 @@ function App() {
           <Route path="/mylistings" element={<MyListings />} />
           <Route path="/products" element={<Products />} />
           <Route path="/updatepassword" element={<ForgotPassword />} />
-          <Route path="/updateproduct" element={<UpdateProduct />} />
+          <Route path="/updateproduct/:productId" element={<UpdateProduct />} />
           <Route path="/admin_login" element={<AdminLogin />} />
           <Route path="/admin_profile" element={<Admin_profile />} />
           <Route path="/pendingproducts" element={<PendingProducts />} />

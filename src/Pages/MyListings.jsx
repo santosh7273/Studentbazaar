@@ -14,7 +14,7 @@ const MyListings = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const navigate = useNavigate();
-
+const [pswd,setpswd]=useState("");
   useEffect(() => {
     const authToken = usertoken || localStorage.getItem("usertoken");
     if (!authToken) {
@@ -39,50 +39,55 @@ const MyListings = () => {
         }
       });
   }, [usertoken, navigate]);
+const handleDelete = async (productId) => {
+  const result = await MySwal.fire({
+    title: "Confirm Deletion",
+    text: "Enter your password to confirm deletion",
+    input: "password",
+    inputPlaceholder: "Enter your password",
+    showCancelButton: true,
+    confirmButtonText: "Delete",
+    cancelButtonText: "Cancel",
+    inputValidator: (value) => {
+      if (!value) return "Password is required!";
+    },
+  });
 
-  const handleDelete = async (productId) => {
-    const result = await MySwal.fire({
-      title: "Confirm Deletion",
-      text: "Enter your password to confirm deletion",
-      input: "password",
-      inputPlaceholder: "Enter your password",
-      showCancelButton: true,
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
-      inputValidator: (value) => {
-        if (!value) return "Password is required!";
-      },
-    });
+  if (!result.isConfirmed || !result.value) return;
 
-    if (!result.isConfirmed || !result.value) return;
+  const password = result.value;
+  setpswd(password); // Optional: you can use it elsewhere
+  setDeleteLoading(productId);
 
-    const password = result.value;
-    setDeleteLoading(productId);
+  try {
+    const authToken = usertoken || localStorage.getItem("usertoken");
 
-    try {
-      const authToken = usertoken || localStorage.getItem("usertoken");
-      const res = await axios.delete("https://bas-backend.onrender.com/mylistings/delete/", {
+    // ✅ Correctly pass password in the data field (in a config object)
+    const res = await axios.delete(
+      `http://localhost:5000/mylistings/deleteproduct/${productId}`,
+      {
+        data: { password }, // ✅ send password in body
         headers: { Authorization: authToken },
-        data: { password, productId },
-      });
-
-      Swal.fire("Deleted!", res.data.message, "success");
-      setListings((prev) => prev.filter((p) => p._id !== productId));
-    } catch (err) {
-      if (err.response?.status === 401) {
-        Swal.fire("Failed", "Invalid password. Deletion failed.", "error");
-      } else {
-        Swal.fire("Error", "Error deleting product.", "error");
       }
-    } finally {
-      setDeleteLoading(null);
+    );
+
+    Swal.fire("Deleted!", res.data.message, "success");
+    setListings((prev) => prev.filter((p) => p._id !== productId));
+  } catch (err) {
+    if (err.response?.status === 401) {
+      Swal.fire("Failed", "Invalid password. Deletion failed.", "error");
+    } else {
+      Swal.fire("Error", "Error deleting product.", "error");
     }
-  };
+  } finally {
+    setDeleteLoading(null);
+  }
+};
 
   const handleUpdate = (productId) => {
-    navigate(`/updateproduct?id=${productId}`);
+    console.log(productId);
+    navigate(`/updateproduct/${productId}`);
   };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-100 flex items-center justify-center p-4">

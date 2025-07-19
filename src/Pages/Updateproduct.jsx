@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Store } from '../App';
 import { motion } from 'framer-motion';
 import Swal from 'sweetalert2';
@@ -12,9 +12,7 @@ const UpdateProduct = () => {
   const { usertoken } = useContext(Store);
   const token = usertoken || localStorage.getItem('usertoken');
   const navigate = useNavigate();
-  const location = useLocation();
-  const productId = new URLSearchParams(location.search).get('id');
-
+  const {productId}=useParams()
   const [form, setForm] = useState({
     name: '',
     price: '',
@@ -38,11 +36,12 @@ const UpdateProduct = () => {
       }
 
       if (!productId) {
+        console.log(productId)
         setError('Product ID is missing');
+        
         setLoading(false);
         return;
       }
-
       try {
         const response = await axios.get(
           `https://bas-backend.onrender.com/mylistings/${productId}`,
@@ -99,11 +98,10 @@ const UpdateProduct = () => {
 
     try {
       await axios.put(
-        `http://localhost:5000/mylistings/updateproduct/${productId}`,
+        `https://bas-backend.onrender.com/mylistings/updateproduct/${productId}`,
         form,
         { headers: { Authorization: token } }
       );
-
       await MySwal.fire({
         icon: 'success',
         title: 'Updated!',
