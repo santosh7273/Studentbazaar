@@ -10,6 +10,10 @@ const PendingProducts = () => {
   const { admintoken } = useContext(Store);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [loadingProductId, setLoadingProductId] = useState(null);
+  const [actionType, setActionType] = useState(""); // "approve" or "reject"
+
   const token = admintoken || localStorage.getItem("admintoken");
 
   useEffect(() => {
@@ -38,42 +42,81 @@ const PendingProducts = () => {
     }
   };
 
-  const confirmAndProceed = async (action, id, email) => {
+  const approveProduct = async (id, email) => {
     const result = await MySwal.fire({
-      title: `${action === "approve" ? "Approve" : "Reject"} Product`,
-      text: `Are you sure you want to ${action} this product?`,
-      icon: action === "approve" ? "question" : "warning",
+      title: "Approve Product",
+      text: "Are you sure you want to approve this product?",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${action}`,
+      confirmButtonText: "Yes, Approve",
       cancelButtonText: "Cancel"
     });
-
     if (!result.isConfirmed) return;
 
     try {
-      const endpoint = action === "approve"
-        ? `https://bas-backend.onrender.com/approveproduct/${id}`
-        : `https://bas-backend.onrender.com/rejectproduct/${id}`;
-
-      await axios.put(endpoint, { email }, {
+      setLoadingProductId(id);
+      setActionType("approve");
+      await axios.put(`https://bas-backend.onrender.com/approveproduct/${id}`, { email }, {
         headers: { Authorization: token }
       });
 
       await MySwal.fire({
         icon: 'success',
-        title: `Product ${action}d successfully`,
+        title: 'Product approved successfully!',
         timer: 1500,
         showConfirmButton: false
       });
 
       setProducts(prev => prev.filter(p => p._id !== id));
     } catch (error) {
-      console.error(`${action} failed:`, error);
+      console.error("Approve failed:", error);
       await MySwal.fire({
         icon: 'error',
-        title: `${action.charAt(0).toUpperCase() + action.slice(1)} Failed`,
-        text: `Something went wrong while trying to ${action} the product.`
+        title: 'Approval Failed',
+        text: 'Something went wrong while approving the product.'
       });
+    } finally {
+      setLoadingProductId(null);
+      setActionType("");
+    }
+  };
+
+  const rejectProduct = async (id, email) => {
+    const result = await MySwal.fire({
+      title: "Reject Product",
+      text: "Are you sure you want to reject this product?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reject",
+      cancelButtonText: "Cancel"
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoadingProductId(id);
+      setActionType("reject");
+      await axios.put(`https://bas-backend.onrender.com/rejectproduct/${id}`, { email }, {
+        headers: { Authorization: token }
+      });
+
+      await MySwal.fire({
+        icon: 'success',
+        title: 'Product rejected successfully!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      setProducts(prev => prev.filter(p => p._id !== id));
+    } catch (error) {
+      console.error("Reject failed:", error);
+      await MySwal.fire({
+        icon: 'error',
+        title: 'Rejection Failed',
+        text: 'Something went wrong while rejecting the product.'
+      });
+    } finally {
+      setLoadingProductId(null);
+      setActionType("");
     }
   };
 
@@ -113,16 +156,23 @@ const PendingProducts = () => {
 
                 <div className="flex gap-4 mt-4">
                   <button
-                    onClick={() => confirmAndProceed("approve", product._id, product.email)}
+                    onClick={() => approveProduct(product._id, product.email)}
                     className="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                    disabled={loadingProductId === product._id}
                   >
-                    Approve
+                    {loadingProductId === product._id && actionType === "approve"
+                      ? "Approving..."
+                      : "Approve Product"}
                   </button>
+
                   <button
-                    onClick={() => confirmAndProceed("reject", product._id, product.email)}
+                    onClick={() => rejectProduct(product._id, product.email)}
                     className="px-5 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                    disabled={loadingProductId === product._id}
                   >
-                    Reject
+                    {loadingProductId === product._id && actionType === "reject"
+                      ? "Rejecting..."
+                      : "Reject Product"}
                   </button>
                 </div>
               </div>

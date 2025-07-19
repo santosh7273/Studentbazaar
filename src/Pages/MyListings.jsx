@@ -64,13 +64,12 @@ const handleDelete = async (productId) => {
 
     // ✅ Correctly pass password in the data field (in a config object)
     const res = await axios.delete(
-      `http://localhost:5000/mylistings/deleteproduct/${productId}`,
+      `https://bas-backend.onrender.com/mylistings/deleteproduct/${productId}`,
       {
         data: { password }, // ✅ send password in body
         headers: { Authorization: authToken },
       }
     );
-
     Swal.fire("Deleted!", res.data.message, "success");
     setListings((prev) => prev.filter((p) => p._id !== productId));
   } catch (err) {
