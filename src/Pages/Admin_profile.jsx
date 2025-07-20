@@ -20,7 +20,7 @@ const Admin_profile = () => {
 
     const fetchAdminProfile = async () => {
       try {
-        const response = await axios.get('https://bas-backend.onrender.com/admin_profile', {
+        const response = await axios.get('https://studentbazaar-backend.onrender.com/admin_profile', {
           headers: { Authorization: token }, // ✅ No Bearer prefix
         });
         setAdmin(response.data);

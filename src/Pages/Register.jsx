@@ -49,7 +49,7 @@ const Register = () => {
     }
 
     try {
-      await axios.post('https://bas-backend.onrender.com/register', {
+      await axios.post('https://studentbazaar-backend.onrender.com/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

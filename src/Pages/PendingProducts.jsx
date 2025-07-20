@@ -26,7 +26,7 @@ const PendingProducts = () => {
 
   const fetchPendingProducts = async () => {
     try {
-      const { data } = await axios.get("https://bas-backend.onrender.com/productstobeapproved", {
+      const { data } = await axios.get("https://studentbazaar-backend.onrender.com/productstobeapproved", {
         headers: { Authorization: token }
       });
       setProducts(data);
@@ -56,7 +56,7 @@ const PendingProducts = () => {
     try {
       setLoadingProductId(id);
       setActionType("approve");
-      await axios.put(`https://bas-backend.onrender.com/approveproduct/${id}`, { email }, {
+      await axios.put(`https://studentbazaar-backend.onrender.com/approveproduct/${id}`, { email }, {
         headers: { Authorization: token }
       });
 
@@ -95,7 +95,7 @@ const PendingProducts = () => {
     try {
       setLoadingProductId(id);
       setActionType("reject");
-      await axios.put(`https://bas-backend.onrender.com/rejectproduct/${id}`, { email }, {
+      await axios.put(`https://studentbazaar-backend.onrender.com/rejectproduct/${id}`, { email }, {
         headers: { Authorization: token }
       });
 

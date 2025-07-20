@@ -26,7 +26,7 @@ const ForgotPassword = () => {
 
     try {
       
-      const response = await axios.post('https://bas-backend.onrender.com/updatepassword', {
+      const response = await axios.put('https://studentbazaar-backend.onrender.com/updatepassword', {
         email,
         password: newPassword
       });

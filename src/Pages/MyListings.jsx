@@ -22,7 +22,7 @@ const [pswd,setpswd]=useState("");
       return;
     }
 
-    axios.get("https://bas-backend.onrender.com/mylistings", {
+    axios.get("https://studentbazaar-backend.onrender.com/mylistings", {
       headers: { Authorization: authToken },
     })
       .then((res) => {
@@ -64,7 +64,7 @@ const handleDelete = async (productId) => {
 
     // ✅ Correctly pass password in the data field (in a config object)
     const res = await axios.delete(
-      `https://bas-backend.onrender.com/mylistings/deleteproduct/${productId}`,
+      `https://studentbazaar-backend.onrender.com/mylistings/deleteproduct/${productId}`,
       {
         data: { password }, // ✅ send password in body
         headers: { Authorization: authToken },

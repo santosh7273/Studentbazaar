@@ -34,7 +34,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://bas-backend.onrender.com/login', ud);
+      const response = await axios.post('https://studentbazaar-backend.onrender.com/login', ud);
       const { token } = response.data;
       if (!token) throw new Error('Invalid response from server');
 

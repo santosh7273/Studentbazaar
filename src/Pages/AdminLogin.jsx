@@ -28,7 +28,7 @@ const AdminLogin = () => {
     setSuccessMsg('');
     setLoading(true);
     try {
-      const response = await axios.post('https://bas-backend.onrender.com/admin_login', ud);
+      const response = await axios.post('https://studentbazaar-backend.onrender.com/admin_login', ud);
       const token = response.data.token;
 
       if (!token) throw new Error('Invalid token from server');

@@ -59,7 +59,7 @@ const SellProduct = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('https://bas-backend.onrender.com/sellproduct', formData, {
+      const res = await axios.post('https://studentbazaar-backend.onrender.com/sellproduct', formData, {
         headers: {
           Authorization: token
         }

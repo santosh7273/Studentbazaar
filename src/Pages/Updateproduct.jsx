@@ -44,7 +44,7 @@ const UpdateProduct = () => {
       }
       try {
         const response = await axios.get(
-          `https://bas-backend.onrender.com/mylistings/${productId}`,
+          `https://studentbazaar-backend.onrender.com/mylistings/${productId}`,
           { headers: { Authorization: token } }
         );
         const productData = response.data;
@@ -98,7 +98,7 @@ const UpdateProduct = () => {
 
     try {
       await axios.put(
-        `https://bas-backend.onrender.com/mylistings/updateproduct/${productId}`,
+        `https://studentbazaar-backend.onrender.com/mylistings/updateproduct/${productId}`,
         form,
         { headers: { Authorization: token } }
       );

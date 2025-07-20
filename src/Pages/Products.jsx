@@ -16,7 +16,7 @@ const Products = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `https://bas-backend.onrender.com/products${searchTerm ? `?name=${searchTerm}` : ''}`,
+        `https://studentbazaar-backend.onrender.com/products${searchTerm ? `?name=${searchTerm}` : ''}`,
         {
           headers: { Authorization: authToken },
         }

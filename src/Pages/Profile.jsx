@@ -29,7 +29,7 @@ const Profile = () => {
   useEffect(() => {
     if (!authToken) return navigate('/login');
 
-    fetch('https://bas-backend.onrender.com/profile', {
+    fetch('https://studentbazaar-backend.onrender.com/profile', {
       headers: { Authorization: authToken }
     })
       .then(async res => {
